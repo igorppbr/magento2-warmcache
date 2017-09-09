@@ -1,0 +1,17 @@
+{
+    "name": "igorludgero/warmcache",
+    "require": {
+        "php": "~5.6.0|~7.0.0|~7.1.0"
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "description": "A warm cache extension.",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Igorludgero\\WarmCache\\": ""
+        }
+    }
+}

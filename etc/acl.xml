@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Warm Cache
+ *
+ * Provide a warm cache extension.
+ *
+ * @package Igorludgero\WarmCache
+ * @author Igor Ludgero Miura <igor@igorludgero.com>
+ * @copyright Copyright (c) 2017 Igor Ludgero Miura (https://www.igorludgero.com/)
+ * @license https://opensource.org/licenses/OSL-3.0.php Open Software License 3.0
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Igorludgero_Warmcache::settings" title="Igor Ludgero - Warmcache" sortOrder="0" />
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Warm Cache
+ *
+ * Provide a warm cache extension.
+ *
+ * @package Igorludgero\WarmCache
+ * @author Igor Ludgero Miura <igor@igorludgero.com>
+ * @copyright Copyright (c) 2017 Igor Ludgero Miura (https://www.igorludgero.com/)
+ * @license https://opensource.org/licenses/OSL-3.0.php Open Software License 3.0
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="igorludgero" translate="label" sortOrder="100">
+            <label>Igor Ludgero Miura</label>
+        </tab>
+        <section id="warmcache" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Warm Cache</label>
+            <tab>igorludgero</tab>
+            <resource>Igorludgero_WarmCache::settings</resource>
+            <group id="settings" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Select the warm cache options you want to enable.</label>
+                <comment>Select each entity type you want to add in the warm cache process.</comment>
+                <field id="product" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Product</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="category" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Category</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cms_pages" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>CMS Pages</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="url_rewrite" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>URL Rewrite</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
