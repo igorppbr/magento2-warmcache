@@ -13,21 +13,23 @@
 
 namespace Igorludgero\WarmCache\Cron;
 
+use Igorludgero\WarmCache\Helper\Data;
+
 class Run
 {
 
     /**
-     * @var \Igorludgero\WarmCache\Helper\Data
+     * @var Data
      */
-    protected $_helper;
+    protected $helper;
 
     /**
      * Run constructor.
-     * @param \Igorludgero\WarmCache\Helper\Data $helper
+     * @param Data $helper
      */
-    public function __construct(\Igorludgero\WarmCache\Helper\Data $helper)
+    public function __construct(Data $helper)
     {
-        $this->_helper = $helper;
+        $this->helper = $helper;
     }
 
     /**
@@ -36,9 +38,7 @@ class Run
      */
     public function execute()
     {
-
-        $this->_helper->run();
+        $this->helper->run();
         return $this;
     }
-
 }

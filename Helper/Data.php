@@ -13,69 +13,74 @@
 
 namespace Igorludgero\WarmCache\Helper;
 
-class Data extends \Magento\Framework\App\Helper\AbstractHelper
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Url;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Catalog\Model\CategoryFactory;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
+use Magento\Cms\Model\PageFactory;
+use Magento\Store\Model\ScopeInterface;
+use Magento\UrlRewrite\Model\UrlRewriteFactory;
+use Zend\Log\Logger;
+
+class Data extends AbstractHelper
 {
 
     /**
      * @var array
      */
-    protected $_urls = array();
+    protected $urls = array();
 
     /**
-     * @var \Magento\Catalog\Model\Product
+     * @var ProductFactory
      */
-    protected $_productModel;
+    protected $productModel;
 
     /**
-     * @var \Magento\Catalog\Model\Category
+     * @var CategoryFactory
      */
-    protected $_categoryModel;
+    protected $categoryModel;
 
     /**
-     * @var \Magento\Cms\Model\Page
+     * @var PageFactory
      */
-    protected $_pageModel;
+    protected $pageModel;
 
     /**
-     * @var \Magento\UrlRewrite\Model\UrlRewrite
+     * @var UrlRewriteFactory
      */
-    protected $_urlRewriteModel;
+    protected $urlRewriteModel;
 
     /**
-     * @var \Zend\Log\Logger
+     * @var Logger
      */
-    protected $_logger;
+    protected $logger;
 
     /**
-     * @var \Magento\Framework\Url
+     * @var Url
      */
-    protected $_frontUrlModel;
+    protected $frontUrlModel;
 
-    /**
-     * Data constructor.
-     * @param \Magento\Framework\App\Helper\Context $context
-     * @param \Magento\Catalog\Model\Product $productModel
-     * @param \Magento\Catalog\Model\Category $categoryModel
-     * @param \Magento\Cms\Model\Page $pageModel
-     * @param \Magento\UrlRewrite\Model\UrlRewrite $urlRewriteModel
-     * @param \Magento\Framework\Url $frontUrlModel
-     */
-    public function __construct(\Magento\Framework\App\Helper\Context $context,
-                                \Magento\Catalog\Model\Product $productModel,
-                                \Magento\Catalog\Model\Category $categoryModel,
-                                \Magento\Cms\Model\Page $pageModel,
-                                \Magento\UrlRewrite\Model\UrlRewrite $urlRewriteModel,
-                                \Magento\Framework\Url $frontUrlModel)
-    {
+
+    public function __construct(
+        Context $context,
+        ProductFactory $productModel,
+        CategoryFactory $categoryModel,
+        PageFactory $pageModel,
+        UrlRewriteFactory $urlRewriteModel,
+        Url $frontUrlModel
+    ) {
         parent::__construct($context);
-        $this->_productModel = $productModel;
-        $this->_categoryModel = $categoryModel;
-        $this->_pageModel = $pageModel;
-        $this->_urlRewriteModel = $urlRewriteModel;
-        $this->_frontUrlModel = $frontUrlModel;
+        $this->productModel = $productModel;
+        $this->categoryModel = $categoryModel;
+        $this->pageModel = $pageModel;
+        $this->urlRewriteModel = $urlRewriteModel;
+        $this->frontUrlModel = $frontUrlModel;
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/igorludgero_warmcache.log');
-        $this->_logger = new \Zend\Log\Logger();
-        $this->_logger->addWriter($writer);
+        $this->logger = new \Zend\Log\Logger();
+        $this->logger->addWriter($writer);
         $this->getUrls();
     }
 
@@ -83,67 +88,70 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * Log a custom message.
      * @param $message
      */
-    public function logMessage($message){
-        $this->_logger->info($message);
+    public function logMessage($message)
+    {
+        $this->logger->info($message);
     }
 
     /**
      * Get all urls to be cached.
      */
-    private function getUrls(){
-
+    private function getUrls()
+    {
         //Add Products url
-        if($this->scopeConfig->getValue('warmcache/settings/product', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            $_productCollection = $this->_productModel->getCollection()
-                ->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
-                ->addAttributeToFilter('visibility', array(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG, \Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH))
+        if ($this->scopeConfig->getValue('warmcache/settings/product', ScopeInterface::SCOPE_STORE)) {
+            $_productCollection = $this->productModel->create()->getCollection()
+                ->addAttributeToFilter('status', Status::STATUS_ENABLED)
+                ->addAttributeToFilter(
+                    'visibility',
+                    array(Visibility::VISIBILITY_IN_CATALOG, Visibility::VISIBILITY_BOTH)
+                )
                 ->addAttributeToSelect(["entity_id"]);
             foreach ($_productCollection as $_product) {
-                $url = $this->_frontUrlModel->getUrl("catalog/product/view", ['id' => $_product->getId()]);
-                if (!in_array($url, $this->_urls)) {
-                    $this->_urls[] = $url;
+                $url = $this->frontUrlModel->getUrl("catalog/product/view", ['id' => $_product->getId()]);
+                if (!in_array($url, $this->urls)) {
+                    $this->urls[] = $url;
                 }
             }
         }
 
         //Add category url
-        if($this->scopeConfig->getValue('warmcache/settings/category', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            $_categoryCollection = $this->_categoryModel->getCollection()
+        if ($this->scopeConfig->getValue('warmcache/settings/category', ScopeInterface::SCOPE_STORE)) {
+            $_categoryCollection = $this->categoryModel->create()->getCollection()
                 ->addAttributeToFilter('is_active', 1)
                 ->addAttributeToSelect(["entity_id"]);
             foreach ($_categoryCollection as $_category) {
-                $url = $this->_frontUrlModel->getUrl("catalog/category/view", ['id' => $_category->getId()]);
-                if (!in_array($url, $this->_urls)) {
-                    $this->_urls[] = $url;
+                $url = $this->frontUrlModel->getUrl("catalog/category/view", ['id' => $_category->getId()]);
+                if (!in_array($url, $this->urls)) {
+                    $this->urls[] = $url;
                 }
             }
         }
 
         //Add cms pages
-        if($this->scopeConfig->getValue('warmcache/settings/cms_pages', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            $_cmsPageCollection = $this->_pageModel->getCollection()->addFieldToFilter("is_active", 1)
+        if ($this->scopeConfig->getValue('warmcache/settings/cms_pages', ScopeInterface::SCOPE_STORE)) {
+            $_cmsPageCollection = $this->pageModel->create()->getCollection()->addFieldToFilter("is_active", 1)
                 ->addFieldToSelect("page_id");
             foreach ($_cmsPageCollection as $page) {
-                $url = $this->_frontUrlModel->getUrl("cms/page/view", ['id' => $page->getId()]);
-                if (!in_array($url, $this->_urls)) {
-                    $this->_urls[] = $url;
+                $url = $this->frontUrlModel->getUrl("cms/page/view", ['id' => $page->getId()]);
+                if (!in_array($url, $this->urls)) {
+                    $this->urls[] = $url;
                 }
             }
         }
 
         //Custom urls in url rewrite.
-        if($this->scopeConfig->getValue('warmcache/settings/url_rewrite', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) {
-            $_urlRewriteCollection = $this->_urlRewriteModel->getCollection()
+        if ($this->scopeConfig->getValue('warmcache/settings/url_rewrite', ScopeInterface::SCOPE_STORE)) {
+            $_urlRewriteCollection = $this->urlRewriteModel->getCollection()
                 ->addFieldToSelect("target_path")
                 ->addFieldToFilter('entity_type', array('nin' => array('cms-page', 'category', 'product')));
             foreach ($_urlRewriteCollection as $urlRewrite) {
-                $newUrl = $this->_frontUrlModel->getBaseUrl() . $urlRewrite->getRequestPath();
-                if (!in_array($newUrl, $this->_urls)) {
-                    $this->_urls[] = $newUrl;
+                $newUrl = $this->frontUrlModel->getBaseUrl() . $urlRewrite->getRequestPath();
+                if (!in_array($newUrl, $this->urls)) {
+                    $this->urls[] = $newUrl;
                 }
             }
         }
-
     }
 
     /**
@@ -152,12 +160,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function run()
     {
         try {
-            foreach ($this->_urls as $url) {
+            foreach ($this->urls as $url) {
                 $this->checkUrl($url);
             }
             return true;
-        }
-        catch (\Exception $ex){
+        } catch (\Exception $ex) {
             $this->logMessage("Error in WarmCache: ".$ex->getMessage());
             return false;
         }
@@ -167,7 +174,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * Render the url.
      * @param $url
      */
-    function checkUrl( $url )
+    private function checkUrl($url)
     {
         $user_agent='Mozilla/4.0 (compatible;)';
 
@@ -188,17 +195,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             CURLOPT_MAXREDIRS      => 4,       // stop after 10 redirects
         );
 
-        $ch      = curl_init( $url );
-        curl_setopt_array( $ch, $options );
-        $content = curl_exec( $ch );
-        $err     = curl_errno( $ch );
-        $errmsg  = curl_error( $ch );
-        $header  = curl_getinfo( $ch );
-        curl_close( $ch );
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $options);
+        $content = curl_exec($ch);
+        $err     = curl_errno($ch);
+        $errmsg  = curl_error($ch);
+        $header  = curl_getinfo($ch);
+        curl_close($ch);
 
         $header['errno']   = $err;
         $header['errmsg']  = $errmsg;
         $header['content'] = $content;
     }
-
 }

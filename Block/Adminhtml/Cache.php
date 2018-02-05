@@ -13,7 +13,9 @@
 
 namespace Igorludgero\WarmCache\Block\Adminhtml;
 
-class Cache extends \Magento\Backend\Block\Cache
+use Magento\Backend\Block\Cache as OriginalCache;
+
+class Cache extends OriginalCache
 {
     /**
      * Cache block constructor.
@@ -21,7 +23,8 @@ class Cache extends \Magento\Backend\Block\Cache
     protected function _construct()
     {
         parent::_construct();
-        $message = __('The Warm Cache will access a lot of store urls like product, category and cms pages to rebuild the caches. Do you agree to start now?');
+        $message = __('The Warm Cache will access a lot of store urls like product, 
+        category and cms pages to rebuild the caches. Do you agree to start now?');
         $this->buttonList->add(
             'warm_cache',
             [
@@ -36,8 +39,8 @@ class Cache extends \Magento\Backend\Block\Cache
      * Get warm cache action url.
      * @return string
      */
-    private function getWarmCacheUrl(){
+    private function getWarmCacheUrl()
+    {
         return $this->getUrl('warmcache/WarmCache/run');
     }
-
 }

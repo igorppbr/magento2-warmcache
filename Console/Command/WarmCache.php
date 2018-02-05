@@ -13,28 +13,35 @@
 
 namespace Igorludgero\WarmCache\Console\Command;
 
-class WarmCache extends \Symfony\Component\Console\Command\Command
+use Igorludgero\WarmCache\Helper\Data;
+use Magento\Framework\App\State;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class WarmCache extends Command
 {
+    /**
+     * @var Data
+     */
+    protected $helper;
 
     /**
-     * @var \Igorludgero\WarmCache\Helper\Data
+     * @var State
      */
-    protected $_helper;
-
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $_appState;
+    protected $appState;
 
     /**
      * WarmCache constructor.
-     * @param \Igorludgero\WarmCache\Helper\Data $helper
+     * @param State $appState
+     * @param Data $helper
      */
-    public function __construct(\Magento\Framework\App\State $appState,
-                                \Igorludgero\WarmCache\Helper\Data $helper)
-    {
-        $this->_helper = $helper;
-        $this->_appState = $appState;
+    public function __construct(
+        State $appState,
+        Data $helper
+    ) {
+        $this->helper = $helper;
+        $this->appState = $appState;
         parent::__construct('igorludgero:warmcache');
     }
 
@@ -43,23 +50,29 @@ class WarmCache extends \Symfony\Component\Console\Command\Command
      */
     protected function configure()
     {
-        $this->setName('igorludgero:warmcache')->setDescription('Run the warm cache and cache all available pages in the store.');
+        $this->setName('igorludgero:warmcache')
+            ->setDescription('Run the warm cache and cache all available pages in the store.');
     }
 
     /**
      * Execute cli command.
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param InputInterface $input
+     * @param OutputInterface $output
      * @return $this
      */
-    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output)
-    {
-        $this->_appState->setAreaCode('adminhtml');
-        if($this->_helper->run()){
-            $this->_helper->logMessage("Warm cache process finished.");
-            $output->writeln('Warm cache process finished.');
+    protected function execute(
+        InputInterface $input,
+        OutputInterface $output
+    ) {
+        try {
+            $this->appState->setAreaCode('adminhtml');
+        } catch (\Exception $ex) {
+            //Exception
         }
-        else{
+        if ($this->helper->run()) {
+            $this->helper->logMessage("Warm cache process finished.");
+            $output->writeln('Warm cache process finished.');
+        } else {
             $output->writeln('Was not possible to run the command, please try again later.');
         }
         return $this;

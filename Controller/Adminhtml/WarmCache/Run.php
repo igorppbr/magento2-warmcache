@@ -14,22 +14,26 @@
 namespace Igorludgero\WarmCache\Controller\Adminhtml\WarmCache;
 
 use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Igorludgero\WarmCache\Helper\Data;
 
-class Run extends \Magento\Backend\App\Action
+class Run extends Action
 {
-
     /**
-     * @var \Igorludgero\WarmCache\Helper\Data
+     * @var Data
      */
-    protected $_helper;
+    protected $helper;
 
     /**
      * Run constructor.
      * @param Action\Context $context
-     * @param \Igorludgero\WarmCache\Helper\Data $helper
+     * @param Data $helper
      */
-    public function __construct(\Magento\Backend\App\Action\Context $context, \Igorludgero\WarmCache\Helper\Data $helper)
-    {
+    public function __construct(
+        Context $context,
+        Data $helper
+    ) {
         parent::__construct($context);
         $this->_helper = $helper;
     }
@@ -39,7 +43,7 @@ class Run extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $resultRedirect = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $this->_helper->run();
         $this->messageManager->addSuccessMessage(__("Warm cache ran successfully!"));
         $resultRedirect->setUrl($this->_redirect->getRefererUrl());
@@ -50,5 +54,4 @@ class Run extends \Magento\Backend\App\Action
     {
         return $this->_authorization->isAllowed('Igorludgero_Warmcache::settings');
     }
-
 }
