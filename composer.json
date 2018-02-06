@@ -1,10 +1,9 @@
 {
     "name": "igorludgero/warmcache",
     "require": {
-        "php": "~5.6.0|~7.0.0|~7.1.0"
     },
     "type": "magento2-module",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A warm cache extension.",
     "autoload": {
         "files": [
