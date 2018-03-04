@@ -15,17 +15,13 @@ namespace Igorludgero\WarmCache\Console\Command;
 
 use Igorludgero\WarmCache\Helper\Data;
 use Magento\Framework\App\State;
+use Magento\Framework\App\ObjectManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class WarmCache extends Command
 {
-    /**
-     * @var Data
-     */
-    protected $helper;
-
     /**
      * @var State
      */
@@ -34,13 +30,10 @@ class WarmCache extends Command
     /**
      * WarmCache constructor.
      * @param State $appState
-     * @param Data $helper
      */
     public function __construct(
-        State $appState,
-        Data $helper
+        State $appState
     ) {
-        $this->helper = $helper;
         $this->appState = $appState;
         parent::__construct('igorludgero:warmcache');
     }
@@ -55,27 +48,27 @@ class WarmCache extends Command
     }
 
     /**
-     * Execute cli command.
+     * Execute cli command
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @return $this
+     * @return $this|int|null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function execute(
         InputInterface $input,
         OutputInterface $output
     ) {
-        try {
-            $this->appState->setAreaCode('adminhtml');
-        } catch (\Exception $ex) {
-            //Exception
-        }
-        if ($this->helper->run()) {
-            $this->helper->logMessage("Warm cache process finished.");
+        $this->appState->setAreaCode('adminhtml');
+        /**
+         * @var $helper Data
+         */
+        $helper = ObjectManager::getInstance()->create(Data::class);
+        if ($helper->run()) {
+            $helper->logMessage("Warm cache process finished.");
             $output->writeln('Warm cache process finished.');
         } else {
             $output->writeln('Was not possible to run the command, please try again later.');
         }
         return $this;
     }
-
 }

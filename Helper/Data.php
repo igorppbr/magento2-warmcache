@@ -142,7 +142,8 @@ class Data extends AbstractHelper
 
         //Custom urls in url rewrite.
         if ($this->scopeConfig->getValue('warmcache/settings/url_rewrite', ScopeInterface::SCOPE_STORE)) {
-            $_urlRewriteCollection = $this->urlRewriteModel->getCollection()
+            $_urlRewriteCollection = $this->urlRewriteModel->create()
+                ->getCollection()
                 ->addFieldToSelect("target_path")
                 ->addFieldToFilter('entity_type', array('nin' => array('cms-page', 'category', 'product')));
             foreach ($_urlRewriteCollection as $urlRewrite) {
