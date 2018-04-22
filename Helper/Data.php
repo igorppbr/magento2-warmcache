@@ -27,6 +27,10 @@ use Zend\Log\Logger;
 
 class Data extends AbstractHelper
 {
+    /**
+     * LOG FOLDER PATH
+     */
+    const LOG_FOLDER_PATH = BP . '/var/log/';
 
     /**
      * @var array
@@ -63,7 +67,16 @@ class Data extends AbstractHelper
      */
     protected $frontUrlModel;
 
-
+    /**
+     * Data constructor
+     *
+     * @param Context $context
+     * @param ProductFactory $productModel
+     * @param CategoryFactory $categoryModel
+     * @param PageFactory $pageModel
+     * @param UrlRewriteFactory $urlRewriteModel
+     * @param Url $frontUrlModel
+     */
     public function __construct(
         Context $context,
         ProductFactory $productModel,
@@ -78,10 +91,6 @@ class Data extends AbstractHelper
         $this->pageModel = $pageModel;
         $this->urlRewriteModel = $urlRewriteModel;
         $this->frontUrlModel = $frontUrlModel;
-        $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/igorludgero_warmcache.log');
-        $this->logger = new \Zend\Log\Logger();
-        $this->logger->addWriter($writer);
-        $this->getUrls();
     }
 
     /**
@@ -90,6 +99,10 @@ class Data extends AbstractHelper
      */
     public function logMessage($message)
     {
+        $this->createLogFolder();
+
+        $writer = new \Zend\Log\Writer\Stream(self::LOG_FOLDER_PATH . 'igorludgero_warmcache.log');
+        $this->logger->addWriter($writer);
         $this->logger->info($message);
     }
 
@@ -161,9 +174,12 @@ class Data extends AbstractHelper
     public function run()
     {
         try {
+            $this->getUrls();
+
             foreach ($this->urls as $url) {
                 $this->checkUrl($url);
             }
+
             return true;
         } catch (\Exception $ex) {
             $this->logMessage("Error in WarmCache: ".$ex->getMessage());
@@ -207,5 +223,17 @@ class Data extends AbstractHelper
         $header['errno']   = $err;
         $header['errmsg']  = $errmsg;
         $header['content'] = $content;
+    }
+
+    /**
+     * Creating Log Folder if does not exists.
+     */
+    protected function createLogFolder()
+    {
+        $pathName = self::LOG_FOLDER_PATH;
+
+        if (!file_exists($pathName)) {
+            mkdir($pathName, 0777, true);
+        }
     }
 }
