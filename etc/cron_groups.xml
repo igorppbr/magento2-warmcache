@@ -13,7 +13,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/cron_groups.xsd">
     <group id="igorludgero_warmcache_group">
-        <schedule_generate_every>1</schedule_generate_every>
+        <schedule_generate_every>1380</schedule_generate_every>
         <schedule_ahead_for>4</schedule_ahead_for>
         <schedule_lifetime>2</schedule_lifetime>
         <history_cleanup_every>10</history_cleanup_every>

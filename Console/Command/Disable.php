@@ -20,7 +20,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WarmCache extends Command
+class Disable extends Command
 {
     /**
      * @var State
@@ -28,14 +28,14 @@ class WarmCache extends Command
     protected $appState;
 
     /**
-     * WarmCache constructor.
+     * Disable constructor.
      * @param State $appState
      */
     public function __construct(
         State $appState
     ) {
         $this->appState = $appState;
-        parent::__construct('igorludgero:warmcache');
+        parent::__construct('igorludgero:warmcache_disable');
     }
 
     /**
@@ -43,8 +43,8 @@ class WarmCache extends Command
      */
     protected function configure()
     {
-        $this->setName('igorludgero:warmcache')
-            ->setDescription('Run the warm cache and cache all available pages in the store.');
+        $this->setName('igorludgero:warmcache_disable')
+            ->setDescription('Disable warm cache.');
     }
 
     /**
@@ -63,12 +63,9 @@ class WarmCache extends Command
          * @var $helper Data
          */
         $helper = ObjectManager::getInstance()->create(Data::class);
-        if ($helper->run()) {
-            $helper->logMessage("Warm cache process finished.");
-            $output->writeln('Warm cache process finished.');
-        } else {
-            $output->writeln('Was not possible to run the command, please try again later. Check if the extension is enabled on admin');
-        }
+        $helper->disableExtension();
+        $helper->logMessage("Warm cache disabled. Please clear the caches.");
+        $output->writeln('Warm cache disabled. Please clear the caches.');
         return $this;
     }
 }

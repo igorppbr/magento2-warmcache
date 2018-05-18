@@ -17,6 +17,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="warm_cache" xsi:type="object">Igorludgero\WarmCache\Console\Command\WarmCache</item>
+                <item name="warm_cache_disable" xsi:type="object">Igorludgero\WarmCache\Console\Command\Disable</item>
             </argument>
         </arguments>
     </type>

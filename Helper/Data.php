@@ -13,14 +13,15 @@
 
 namespace Igorludgero\WarmCache\Helper;
 
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Url;
-use Magento\Catalog\Model\ProductFactory;
 use Magento\Catalog\Model\CategoryFactory;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\ProductFactory;
 use Magento\Cms\Model\PageFactory;
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\Url;
 use Magento\Store\Model\ScopeInterface;
 use Magento\UrlRewrite\Model\UrlRewriteFactory;
 use Zend\Log\Logger;
@@ -63,14 +64,29 @@ class Data extends AbstractHelper
      */
     protected $frontUrlModel;
 
+    /**
+     * @var WriterInterface
+     */
+    protected $writerInterface;
 
+    /**
+     * Data constructor.
+     * @param Context $context
+     * @param ProductFactory $productModel
+     * @param CategoryFactory $categoryModel
+     * @param PageFactory $pageModel
+     * @param UrlRewriteFactory $urlRewriteModel
+     * @param Url $frontUrlModel
+     * @param WriterInterface $writerInterface
+     */
     public function __construct(
         Context $context,
         ProductFactory $productModel,
         CategoryFactory $categoryModel,
         PageFactory $pageModel,
         UrlRewriteFactory $urlRewriteModel,
-        Url $frontUrlModel
+        Url $frontUrlModel,
+        WriterInterface $writerInterface
     ) {
         parent::__construct($context);
         $this->productModel = $productModel;
@@ -78,6 +94,7 @@ class Data extends AbstractHelper
         $this->pageModel = $pageModel;
         $this->urlRewriteModel = $urlRewriteModel;
         $this->frontUrlModel = $frontUrlModel;
+        $this->writerInterface = $writerInterface;
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/igorludgero_warmcache.log');
         $this->logger = new \Zend\Log\Logger();
         $this->logger->addWriter($writer);
@@ -160,15 +177,18 @@ class Data extends AbstractHelper
      */
     public function run()
     {
-        try {
-            foreach ($this->urls as $url) {
-                $this->checkUrl($url);
+        if ($this->isEnabled()) {
+            try {
+                foreach ($this->urls as $url) {
+                    $this->checkUrl($url);
+                }
+                return true;
+            } catch (\Exception $ex) {
+                $this->logMessage("Error in WarmCache: " . $ex->getMessage());
+                return false;
             }
-            return true;
-        } catch (\Exception $ex) {
-            $this->logMessage("Error in WarmCache: ".$ex->getMessage());
-            return false;
         }
+        return false;
     }
 
     /**
@@ -207,5 +227,22 @@ class Data extends AbstractHelper
         $header['errno']   = $err;
         $header['errmsg']  = $errmsg;
         $header['content'] = $content;
+    }
+
+    /**
+     * Disable warm cache enable setting
+     */
+    public function disableExtension()
+    {
+        $this->writerInterface->save("warmcache/settings/enable", 0);
+    }
+
+    /**
+     * Is the extension enabled
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return (bool)$this->scopeConfig->getValue('warmcache/settings/enable', ScopeInterface::SCOPE_STORE);
     }
 }

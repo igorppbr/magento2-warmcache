@@ -23,13 +23,11 @@ class Cache extends OriginalCache
     protected function _construct()
     {
         parent::_construct();
-        $message = __('The Warm Cache will access a lot of store urls like product, 
-        category and cms pages to rebuild the caches. Do you agree to start now?');
         $this->buttonList->add(
             'warm_cache',
             [
                 'label' => __('Run Warm Cache'),
-                'onclick' => 'confirmSetLocation(\'' . $message . '\', \'' . $this->getWarmCacheUrl() . '\')',
+                'onclick' => "window.location.href = '".$this->getWarmCacheUrl()."'",
                 'class' => 'run-warm-cache'
             ]
         );
