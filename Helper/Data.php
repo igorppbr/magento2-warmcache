@@ -98,7 +98,6 @@ class Data extends AbstractHelper
         $writer = new \Zend\Log\Writer\Stream(BP . '/var/log/igorludgero_warmcache.log');
         $this->logger = new \Zend\Log\Logger();
         $this->logger->addWriter($writer);
-        $this->getUrls();
     }
 
     /**
@@ -178,14 +177,17 @@ class Data extends AbstractHelper
     public function run()
     {
         if ($this->isEnabled()) {
-            try {
-                foreach ($this->urls as $url) {
-                    $this->checkUrl($url);
+            $this->getUrls();
+            if (count($this->urls) > 0) {
+                try {
+                    foreach ($this->urls as $url) {
+                        $this->checkUrl($url);
+                    }
+                    return true;
+                } catch (\Exception $ex) {
+                    $this->logMessage("Error in WarmCache: " . $ex->getMessage());
+                    return false;
                 }
-                return true;
-            } catch (\Exception $ex) {
-                $this->logMessage("Error in WarmCache: " . $ex->getMessage());
-                return false;
             }
         }
         return false;

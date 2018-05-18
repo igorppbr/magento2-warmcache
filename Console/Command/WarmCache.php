@@ -67,7 +67,8 @@ class WarmCache extends Command
             $helper->logMessage("Warm cache process finished.");
             $output->writeln('Warm cache process finished.');
         } else {
-            $output->writeln('Was not possible to run the command, please try again later. Check if the extension is enabled on admin');
+            $output->writeln('Was not possible to run the command, please try again later. '.
+            'Check if the extension is enabled on admin and if you enabled at least one warm cache type.');
         }
         return $this;
     }
