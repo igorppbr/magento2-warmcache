@@ -58,8 +58,10 @@ class Disable extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        $this->appState->setAreaCode('adminhtml');
-        /**
+        if (!$this->appState->getAreaCode()) {
+            $this->appState->setAreaCode('adminhtml');
+        }
+         /**
          * @var $helper Data
          */
         $helper = ObjectManager::getInstance()->create(Data::class);
